@@ -55,13 +55,13 @@ namespace CryptographyLib
 
         private static Dictionary<String, User> Users =
             new Dictionary<String, User>();
-        public static User Register(string username, string password, object saltText)
+        public static User Register(string username, string password)
         {
             var rng = RandomNumberGenerator.Create();
             var saltbtyes = new byte[16];
             rng.GetBytes(saltbtyes);
             var saltext = Convert.ToBase64String(saltbtyes);
-            var saltedhashedPassword = SaltAndHashPassword(password, (string)saltText);
+            var saltedhashedPassword = SaltAndHashPassword(password, saltext);
             var user = new User
             {
                 Name = username,
@@ -72,7 +72,7 @@ namespace CryptographyLib
             return user;
         }
 
-        public static bool checkpassword(string username, string password)
+        public static bool checkPassword(string username, string password)
         {
             if (!Users.ContainsKey(username))
             {
@@ -80,6 +80,8 @@ namespace CryptographyLib
             }
             var user = Users[username];
             var saltedhashedpassword= SaltAndHashPassword(password, user.Salt);
+            return (saltedhashedpassword == user.SaltedHashedPassword);
+
         }
 
         private static string SaltAndHashPassword(string password, string salt)
