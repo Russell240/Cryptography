@@ -11,6 +11,7 @@ using CryptographyLib;
 
 namespace CryptographyLib
 {
+
     public static class Protector
     {
         private static readonly byte[] salt = Encoding.Unicode.GetBytes("7 bytes");
@@ -90,5 +91,18 @@ namespace CryptographyLib
             var saltedpassword = password + salt;
             return Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(saltedpassword)));
         }
+        public static string PublicKey;
+        public static string ToXmlStringExt(this RSA rsa,bool includePrivateParameters ) 
+        {
+            var p = rsa.ExportParameters(includePrivateParameters);#
+            XElement xml;
+            if (includePrivateParameters) 
+            {
+                xml = new XElement("RSA value", new XElement("Modulus",
+                   ToBase64String(p.Modulus)), new XElement("Exponent", ));
+            }
+
+        }
+
     }
 }
