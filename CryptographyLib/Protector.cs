@@ -94,15 +94,51 @@ namespace CryptographyLib
         public static string PublicKey;
         public static string ToXmlStringExt(this RSA rsa,bool includePrivateParameters ) 
         {
-            var p = rsa.ExportParameters(includePrivateParameters);#
+            var p = rsa.ExportParameters(includePrivateParameters);
             XElement xml;
             if (includePrivateParameters) 
             {
-                xml = new XElement("RSA value", new XElement("Modulus",
-                   ToBase64String(p.Modulus)), new XElement("Exponent", ));
+                xml = new XElement("RSA value",
+                    new XElement("Modulus", Convert.ToBase64String(p.Modulus)),
+                    new XElement("Exponent", Convert.ToBase64String(p.Exponent)),
+                    new XElement("P", Convert.ToBase64String(p.P)),
+                    new XElement("Q", Convert.ToBase64String(p.Q)),
+                    new XElement("DP", Convert.ToBase64String(p.DP)),
+                    new XElement("DQ", Convert.ToBase64String(p.DQ)),
+                    new XElement("InverseQ", Convert.ToBase64String(p.InverseQ))
+                    );
+             }
+            else 
+            {
+                xml = new XElement("RSAKeyValue",
+                    new XElement("Modulus", Convert.ToBase64String(p.Modulus)),
+                    new XElement("Expontent", Convert.ToBase64String(p.Exponent)));
+                    ;
             }
+            return xml ?.ToString();
+            }
+        public static void FromXmlStringExt(this RSA rsa,string paramtersAsXml ) 
+        {
+            var xml = XDocument.Parse(paramtersAsXml);
+            var root = xml.Element("RSAKeyValue");
+            var p = new RSAParameters
+            {
+                Modulus= Convert.FromBase64String(root.Element("Modulus" ).Value),
+                Exponent= Convert.FromBase64String(root.Element("Exponent").Value)
+
+            };
+            if (root.Element("P") != null) 
+            {
+                p.Q = Convert.FromBase64String(root.Element("P").Value);
+                p.Q = Convert.FromBase64String(root.Element("Q").Value);
+                p.DP = Convert.FromBase64String(root.Element("DP").Value);
+                p.InverseQ = Convert.FromBase64String(root.Element("InverseQ").Value);
+                rsa.ImportParameters(p);
+
+            }
+        } 
 
         }
 
     }
-}
+
