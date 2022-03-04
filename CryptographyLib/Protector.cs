@@ -136,7 +136,13 @@ namespace CryptographyLib
                 rsa.ImportParameters(p);
 
             }
-        } 
+        }
+        public static string GenerateSignature(string data) 
+        {
+            byte[] dataBytes = Encoding.Unicode.GetBytes(data);
+            var sha = SHA256.Create();
+            var hasheddata = sha.ComputeHash(dataBytes); 
+        }
 
         }
 
