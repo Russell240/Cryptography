@@ -55,8 +55,8 @@ namespace CryptographyLib
         }
 
         private static Dictionary<String, User> Users =
-            new Dictionary<String, User>();
-        public static User Register(string username, string password)
+           new Dictionary<String, User>();
+        public static User Register(string username, string password, string []roles= null)
         {
             var rng = RandomNumberGenerator.Create();
             var saltbtyes = new byte[16];
@@ -68,12 +68,13 @@ namespace CryptographyLib
                 Name = username,
                 Salt = saltext,
                 SaltedHashedPassword = saltedhashedPassword,
+                Roles= roles, 
             };
             Users.Add(user.Name, user);
             return user;
         }
 
-        public static bool checkPassword(string username, string password)
+        public static bool CheckPassword(string username, string password)
         {
             if (!Users.ContainsKey(username))
             {
@@ -141,10 +142,46 @@ namespace CryptographyLib
         {
             byte[] dataBytes = Encoding.Unicode.GetBytes(data);
             var sha = SHA256.Create();
-            var hasheddata = sha.ComputeHash(dataBytes); 
+            var hasheddata = sha.ComputeHash(dataBytes);
+            var rsa = RSA.Create();
+            PublicKey = rsa.ToXmlString(false);
+            return Convert.ToBase64String(rsa.SignHash(hasheddata,
+                HashAlgorithmName.SHA256,RSASignaturePadding.Pkcs1 ));
         }
 
+        public static bool ValidateSignature(string data, string signature) 
+        {
+            byte[] dataBytes = Encoding.Unicode.GetBytes(data);
+            var sha = SHA256.Create();
+            var hasheddata = sha.ComputeHash(dataBytes);
+            byte[] signatureBytes =Convert.FromBase64String(signature);
+            var rsa = RSA.Create();
+            rsa.FromXmlString(PublicKey);
+            return rsa.VerifyHash(hasheddata, signatureBytes,
+                HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
         }
 
+        public static byte[] GetRandomKeyOrIV(int size)
+        {
+            var r = RandomNumberGenerator.Create();
+            var data = new byte[size];
+            r.GetNonZeroBytes(data);
+            // data is filled with random bytes
+            return data;
+        }
+
+        public static void LogIn(string username, string password) 
+        {
+            if (CheckPassword(username, password))
+            {
+                var identity = new GenericIdentity(username, "PackAuth");
+                var principal = new GenericPrincipal(identity,Users[username].Roles);
+                System.Threading.Thread.CurrentPrincipal = principal;
+
+
+            }
+        }
     }
+
+}
 
