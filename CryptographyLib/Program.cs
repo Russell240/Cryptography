@@ -2,6 +2,8 @@
 using System.Security.Cryptography;
 using static System.Console;
 using System;
+using System.Threading;
+using System.Security;
 
 namespace CryptographyLib
 {
@@ -30,6 +32,23 @@ namespace CryptographyLib
             {
                WriteLine("Non cryptographic exception: {0}, {1} ", arg0: ex.GetType().Name, arg1: ex.Message);
             }
+        }
+
+        static void SecureFeature() 
+        {
+            if (Thread.CurrentPrincipal == null) 
+            {
+                throw new SystemException("A user must be logged into to access " +
+                    "this feature ");
+            }
+            if (!Thread.CurrentPrincipal.IsInRole("Admins")) 
+            {
+                throw new SecurityException("User must be a " +
+                    "member of the admins to access this feature");
+
+             }
+            Console.WriteLine("You have access to this security features ");
+
         }
     }
 }
