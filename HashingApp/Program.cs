@@ -32,7 +32,7 @@ namespace HashingApp
                 string loginUsername = ReadLine();
                 Write("Enter a password to login in");
                 string loginpassword = ReadLine();
-                correctPassword = Protector.checkPassword(loginUsername, loginpassword);
+                correctPassword = Protector.CheckPassword(loginUsername, loginpassword);
                 if (correctPassword)
                 {
                     WriteLine($"Correct! {loginUsername} has been logged in ");

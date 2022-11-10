@@ -15,6 +15,7 @@ namespace RandomizingApp
                 Console.WriteLine($"{key[b]:x2}");
                 if (((b + 1) % 16) == 0) Console.WriteLine();
             }
+            Console.WriteLine();
 
         }
     }

@@ -34,21 +34,6 @@ namespace CryptographyLib
             }
         }
 
-        static void SecureFeature() 
-        {
-            if (Thread.CurrentPrincipal == null) 
-            {
-                throw new SystemException("A user must be logged into to access " +
-                    "this feature ");
-            }
-            if (!Thread.CurrentPrincipal.IsInRole("Admins")) 
-            {
-                throw new SecurityException("User must be a " +
-                    "member of the admins to access this feature");
-
-             }
-            Console.WriteLine("You have access to this security features ");
-
-        }
+      
     }
 }

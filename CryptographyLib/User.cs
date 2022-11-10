@@ -13,8 +13,10 @@ namespace CryptographyLib
 
         public string SaltedHashedPassword { get; set; }
 
+        public string[] Roles { get; set; }
+
         private static Dictionary<string, User> Users = new Dictionary<string,User>();
-        public static User Register(string username, string password ) 
+        public static User Register(string username, string password, string []roles  = null ) 
         {
             var rng = RandomNumberGenerator.Create();
             var saltbytes = new byte[16];
@@ -23,7 +25,9 @@ namespace CryptographyLib
             var saltedHashedPassword = SaltAndHashPassword(password, saltext);
             var user = new User
             {
-                Name = username, Salt = saltext, SaltedHashedPassword = saltedHashedPassword
+                Name = username, Salt = saltext, 
+                SaltedHashedPassword = saltedHashedPassword, 
+                Roles= roles
             };
             Users.Add(user.Name, user);
             return user; 

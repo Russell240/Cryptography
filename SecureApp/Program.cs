@@ -4,21 +4,21 @@ using System.Security.Principal;
 using System.Threading;
 using System.Security.Permissions;
 using CryptographyLib;
+using static System.Console;
 using System.Security.Claims;
 
 namespace SecureApp
 {
     class Program
     {
-        Program program = new Program();
-        static void Main(string[] args)
+         static void Main(string[] args)
         {
             Protector.Register("Alice","Pa$$word", new[] { "Admins" });
             Protector.Register("Bob", "Pa$$word", new[] {"Sales", "TeamLeads" });
             Protector.Register("Eve", "Pa$$word");
-            Console.Write($"Enter your username ");
+            Write($"Enter your username ");
             string username = Console.ReadLine();
-            Console.Write($"Enter your password ");
+            Write($"Enter your password ");
             string password = Console.ReadLine();
             Protector.LogIn(username, password);
             if (Thread.CurrentPrincipal==null) 
@@ -27,28 +27,46 @@ namespace SecureApp
                 return;
             }
             var p = Thread.CurrentPrincipal;
-            Console.WriteLine($"IsAuthenticated: {p.Identity.IsAuthenticated} ");
-            Console.WriteLine($"Name { p.Identity.Name}");
-            Console.WriteLine($"IsRole(\"Admins\") : {p.IsInRole("Admins")}");
-            Console.WriteLine($"IsRole(\"Sales\"): {p.IsInRole("Sales")} ");
+            WriteLine($"IsAuthenticated: {p.Identity.IsAuthenticated} ");
+            WriteLine($"Name { p.Identity.Name}");
+            WriteLine($"IsRole(\"Admins\") : {p.IsInRole("Admins")}");
+            WriteLine($"IsRole(\"Sales\"): {p.IsInRole("Sales")} ");
             if (p is ClaimsPrincipal) 
             {
-                Console.WriteLine($"{p.Identity} has the following claims ");
+               WriteLine($"{p.Identity} has the following claims ");
 
                 foreach (Claim  claim in (p as ClaimsPrincipal).Claims) 
                 {
-                    Console.WriteLine($"{claim.Type}:{claim.Value} "); 
+                    WriteLine($"{claim.Type}:{claim.Value} "); 
                 }
             }
 
             try
             {
-                Program.SecureFeature();
+                SecureFeature();
             }
-            catch 
-            { 
+            catch(System.Exception ex )
+            {
+                WriteLine($"{ex.GetType()}:{ex.Message}");
+            }
+        }
+
+        // method checks for correct user access rights 
+        static void SecureFeature()
+        {
+            if (Thread.CurrentPrincipal == null)
+            {
+                throw new SystemException("A user must be logged into to access " +
+                    "this feature ");
+            }
+            if (!Thread.CurrentPrincipal.IsInRole("Admins"))
+            {
+                throw new SecurityException("User must be a " +
+                    "member of the admins to access this feature");
 
             }
+            WriteLine("You have access to this security features ");
+
         }
     }
 }
